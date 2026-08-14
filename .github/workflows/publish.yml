@@ -1,0 +1,30 @@
+name: Publish Package to npm
+
+on:
+  push:
+    branches:
+      - release # Ensures publishing ONLY happens when pushing code to the release branch
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Source Code
+        uses: actions/checkout@v4
+
+      - name: Initialize Node.js Environment
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          registry-url: 'https://npmjs.org'
+
+      - name: Install Application Dependencies
+        run: npm ci
+
+      - name: Compile TypeScript to JavaScript Output
+        run: npm run build
+
+      - name: Deploy Library Assets to npm Registry
+        run: npm publish
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
