@@ -1,0 +1,32 @@
+name: Publish Package to npm
+
+on:
+  push:
+    branches:
+      - release
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Source Code
+        uses: actions/checkout@v4
+
+      - name: Initialize Node.js Environment
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Install Application Dependencies
+        run: npm ci
+
+      - name: Compile TypeScript to JavaScript Output
+        run: npm run build
+
+      - name: Deploy Library Assets to npm Registry
+        # This setup command creates the auth config file dynamically before pushing live
+        run: |
+          echo "//registry.npmjs.org/:_authToken=\${NODE_AUTH_TOKEN}" > ~/.npmrc
+          npm publish --registry=https://registry.npmjs.org
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
