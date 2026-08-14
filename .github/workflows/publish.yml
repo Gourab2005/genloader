@@ -16,7 +16,6 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: '20'
-          # Removed the global registry-url property from here to prevent 403 blocks
 
       - name: Install Application Dependencies
         run: npm ci
@@ -25,7 +24,9 @@ jobs:
         run: npm run build
 
       - name: Deploy Library Assets to npm Registry
-        # We target the destination registry explicitly during publication
-        run: npm publish --registry=https://registry.npmjs.org
+        # This setup command creates the auth config file dynamically before pushing live
+        run: |
+          echo "//registry.npmjs.org/:_authToken=\${NODE_AUTH_TOKEN}" > ~/.npmrc
+          npm publish --registry=https://registry.npmjs.org
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
